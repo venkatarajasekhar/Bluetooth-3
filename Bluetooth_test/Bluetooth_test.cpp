@@ -20,13 +20,23 @@ void err_quit(char* msg)
 }
 int main(){
 	WSADATA wsa_data;
-	SOCKET socket;
 	SOCKADDR_BTH socket_Addr_Bth;
 
 	//init winsock
 	if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0){ return -1; }
 	MessageBox(NULL, "complete to init winsock", "complete", MB_OK);
 
+	//socket
+	SOCKET bth_socket = socket(AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);
+	if (bth_socket == INVALID_SOCKET) err_quit("coket()");
+
+
+
+
+	//close socket
+	closesocket(bth_socket);
+
+	//terminate winsock
 	WSACleanup();
 	return 0;
 }
