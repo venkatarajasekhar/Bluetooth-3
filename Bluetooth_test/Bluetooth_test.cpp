@@ -1,5 +1,5 @@
 #include <winsock2.h>
-//#include <ws2bth.h>
+#include <ws2bth.h>
 //#include <BluetoothAPIs.h>
 //#include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +19,14 @@ void err_quit(char* msg)
 	exit(-1);
 }
 int main(){
+	WSADATA wsa_data;
+	SOCKET socket;
+	SOCKADDR_BTH socket_Addr_Bth;
 
+	//init winsock
+	if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0){ return -1; }
+	MessageBox(NULL, "complete to init winsock", "complete", MB_OK);
 
-	return 1;
+	WSACleanup();
+	return 0;
 }
