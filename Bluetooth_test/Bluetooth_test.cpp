@@ -22,10 +22,11 @@ void err_quit(char* msg)
 
 int main(){
 	WSADATA wsa_data;
+	int retval = 0;
 
 	//init winsock
 	if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0){ return -1; }
-	MessageBox(NULL, "complete to init winsock", "complete", MB_OK);
+	//MessageBox(NULL, "complete to init winsock", "complete", MB_OK);
 
 	//socket
 	SOCKET bth_socket = socket(AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);
@@ -34,13 +35,42 @@ int main(){
 
 	//socket address
 	SOCKADDR_BTH socket_Addr_Bth;
-	//memset(&socket_Addr_Bth, 0, sizeof(socket_Addr_Bth)); 이거 안해도되나?
+	memset(&socket_Addr_Bth, 0, sizeof(socket_Addr_Bth));  //이거 안하면 bind()에서 에러남
 	socket_Addr_Bth.addressFamily = AF_BTH;
 	socket_Addr_Bth.port = BT_PORT_ANY; //서버일때는 BT_PORT_ANY이고 아닐 땐 0 이나 1 하는거 봐서 COMPORT번호 써주는듯?
 
+	// bind() associates a local address and port combination
+	// with the socket just created. This is most useful when
+	// the application is a server that has a well-known port
+	// that clients know about in advance.
+	retval = bind(bth_socket, (struct sockaddr*)&socket_Addr_Bth, sizeof(SOCKADDR_BTH));
+	if (retval == SOCKET_ERROR) err_quit("bind()");
 
+	//listen()
+	retval = listen(bth_socket, 5);
+	if (retval == SOCKET_ERROR) err_quit("listen()");
 
+	//서버모드
+	SOCKET bth_socket_2;
+	SOCKADDR_BTH socket_Addr_Bth_2;
+	int len = 0;
+	printf("listening!\n");
+	while (1)
+	{
+		// Get information on the port assigned
+		len = sizeof(socket_Addr_Bth_2);
+		bth_socket_2 = accept(bth_socket, (SOCKADDR *)&socket_Addr_Bth_2, &len);
+		if (bth_socket_2 == INVALID_SOCKET)
+		{
+			printf("accept() failed with error code %d\n", WSAGetLastError());
+			break;
+		}
+		else
+			printf("accept(), is OK buddy!\n");
 
+		// Print the info
+		printf("Connection came from %04x%08x to channel %d\n", GET_NAP(socket_Addr_Bth_2.btAddr), GET_SAP(socket_Addr_Bth_2.btAddr), socket_Addr_Bth_2.port);
+	}
 
 	//close socket
 	closesocket(bth_socket);
