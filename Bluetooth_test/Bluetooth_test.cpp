@@ -37,7 +37,7 @@ int main(){
 	SOCKADDR_BTH socket_Addr_Bth;
 	memset(&socket_Addr_Bth, 0, sizeof(socket_Addr_Bth));  //이거 안하면 bind()에서 에러남
 	socket_Addr_Bth.addressFamily = AF_BTH;
-	socket_Addr_Bth.port = BT_PORT_ANY; //서버일때는 BT_PORT_ANY이고 아닐 땐 0 이나 1 하는거 봐서 COMPORT번호 써주는듯?
+	socket_Addr_Bth.port = 1; //서버일때는 BT_PORT_ANY이고 아닐 땐 0 이나 1 하는거 봐서 COMPORT번호 써주는듯?
 
 	// bind() associates a local address and port combination
 	// with the socket just created. This is most useful when
