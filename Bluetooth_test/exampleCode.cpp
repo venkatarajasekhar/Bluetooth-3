@@ -374,110 +374,111 @@ ULONG RunClientMode(ULONGLONG ululRemoteAddr, int iMaxCxnCycles)
 			printf("*INFO* | connect() call succeeded!\n");
 		}
 
-		////receive넣어보자!
-		//BOOL bContinue;
-		//char *             pszDataBufferIndex = NULL;
-		//char               szDataBuffer[CXN_TRANSFER_DATA_LENGTH] = { 0 };
-		//int iTotalLengthReceived;
-		//for (iCxnCount = 0; (0 == ulRetCode) && ((iCxnCount < iMaxCxnCycles) || (iMaxCxnCycles == 0)); iCxnCount++)
-		//{
-		//	printf("\n");
+		//receive넣어보자!
+		BOOL bContinue;
+		char *             pszDataBufferIndex = NULL;
+		char               szDataBuffer[CXN_TRANSFER_DATA_LENGTH] = { 0 };
+		int iTotalLengthReceived = 0, iLengthReceived = 0;
+		for (iCxnCount = 0; (0 == ulRetCode) && ((iCxnCount < iMaxCxnCycles) || (iMaxCxnCycles == 0)); iCxnCount++)
+		{
+			printf("\n");
 
-		//	// accept() call indicates winsock2 to wait for any 
-		//	// incoming connection request from a remote socket.
-		//	// If there are already some connection requests on the queue,
-		//	// then accept() extracts the first request and creates a new socket and
-		//	// returns the handle to this newly created socket. This newly created
-		//	// socket represents the actual connection that connects the two sockets.
+			// accept() call indicates winsock2 to wait for any 
+			// incoming connection request from a remote socket.
+			// If there are already some connection requests on the queue,
+			// then accept() extracts the first request and creates a new socket and
+			// returns the handle to this newly created socket. This newly created
+			// socket represents the actual connection that connects the two sockets.
 
 
 
-		//	// Read data from the incoming stream
-		//	bContinue = TRUE;
-		//	pszDataBufferIndex = &szDataBuffer[0];
-		//	while (bContinue && (iTotalLengthReceived < CXN_TRANSFER_DATA_LENGTH))
-		//	{
-		//		// recv() call indicates winsock2 to receive data
-		//		// of an expected length over a given connection.
-		//		// recv() may not be able to get the entire length
-		//		// of data at once.  In such case the return value,
-		//		// which specifies the number of bytes received,
-		//		// can be used to calculate how much more data is
-		//		// pending and accordingly recv() can be called again.
-		//		iLengthReceived = recv(ClientSocket, pszDataBufferIndex, (CXN_TRANSFER_DATA_LENGTH - iTotalLengthReceived), 0);
-
-		//		switch (iLengthReceived)
-		//		{
-		//		case 0: // socket connection has been closed gracefully
-		//			printf("Socket connection has been closed gracefully!\n");
-		//			bContinue = FALSE;
-		//			break;
-		//		case SOCKET_ERROR:
-		//			printf("=CRITICAL= | recv() call failed. Error=[%d]\n", WSAGetLastError());
-		//			bContinue = FALSE;
-		//			ulRetCode = 1;
-		//			break;
-		//		default: // most cases when data is being read
-		//			pszDataBufferIndex += iLengthReceived;
-		//			iTotalLengthReceived += iLengthReceived;
-		//			if ((2 <= g_iOutputLevel) | (iLengthReceived != SOCKET_ERROR))
-		//			{
-		//				printf("*INFO* | Receiving data of length = [%d]. Current Total = [%d]\n", iLengthReceived, iTotalLengthReceived);
-		//			}
-		//			break;
-		//		}
-		//	}
-
-		//	if (ulRetCode == 0)
-		//	{
-		//		if (CXN_TRANSFER_DATA_LENGTH != iTotalLengthReceived)
-		//		{
-		//			printf("+WARNING+ | Data transfer aborted mid-stream. Expected Length = [%d], Actual Length = [%d]\n",
-		//				CXN_TRANSFER_DATA_LENGTH, iTotalLengthReceived);
-		//		}
-
-		//		printf("*INFO* | Received following data string from remote device:\n%s\n", szDataBuffer);
-
-		//		// Close the connection
-		//		if (closesocket(ClientSocket) == SOCKET_ERROR)
-		//		{
-		//			printf("=CRITICAL= | closesocket() call failed w/socket = [0x%X]. Error=[%d]\n", LocalSocket, WSAGetLastError());
-		//			ulRetCode = 1;
-		//		}
-		//		else
-		//		{
-		//			// Make the connection invalid regardless
-		//			ClientSocket = INVALID_SOCKET;
-
-		//			if ((2 <= g_iOutputLevel) | (closesocket(ClientSocket) != SOCKET_ERROR))
-		//			{
-		//				printf("*INFO* | closesocket() call succeeded w/socket=[0x%X]\n", ClientSocket);
-		//			}
-		//		}
-		//	}
-		//}
-
-		//recv()넣어보자 2
-		for (int i = 0; i < CXN_TRANSFER_DATA_LENGTH; i++){
-			szData[i] = '\0';
-		}
-		int iResult = 0;
-		do {
-			//printf("recv() : ");
-			iResult = recv(LocalSocket, szData, CXN_TRANSFER_DATA_LENGTH, 0);
-			if (iResult > 0){
-				//printf(" %d Bytes received from sender", iResult);
-				printf(" data = %s\n",szData);
-				for (int i = 0; i < iResult; i++){
-					szData[i] = '\0';
+			// Read data from the incoming stream
+			bContinue = TRUE;
+			pszDataBufferIndex = &szDataBuffer[0];
+			while (bContinue && (iTotalLengthReceived < CXN_TRANSFER_DATA_LENGTH))
+			{
+				// recv() call indicates winsock2 to receive data
+				// of an expected length over a given connection.
+				// recv() may not be able to get the entire length
+				// of data at once.  In such case the return value,
+				// which specifies the number of bytes received,
+				// can be used to calculate how much more data is
+				// pending and accordingly recv() can be called again.
+				
+				iLengthReceived = recv(LocalSocket, pszDataBufferIndex, (CXN_TRANSFER_DATA_LENGTH - iTotalLengthReceived), 0);
+				
+				switch (iLengthReceived)
+				{
+				case 0: // socket connection has been closed gracefully
+					printf("Socket connection has been closed gracefully!\n");
+					bContinue = FALSE;
+					break;
+				case SOCKET_ERROR:
+					printf("=CRITICAL= | recv() call failed. Error=[%d]\n", WSAGetLastError());
+					bContinue = FALSE;
+					ulRetCode = 1;
+					break;
+				default: // most cases when data is being read
+					pszDataBufferIndex += iLengthReceived;
+					iTotalLengthReceived += iLengthReceived;
+					if ((2 <= g_iOutputLevel) | (iLengthReceived != SOCKET_ERROR))
+					{
+						printf("*INFO* | Receiving data of length = [%d]. Current Total = [%d]\n", iLengthReceived, iTotalLengthReceived);
+					}
+					break;
 				}
 			}
-			else if (iResult == 0)
-				printf("Connection closed by peer!\n");
-			else
-				printf("recv() failed with error code %d\n", WSAGetLastError());
 
-		} while (iResult > 0);
+			if (ulRetCode == 0)
+			{
+				if (CXN_TRANSFER_DATA_LENGTH != iTotalLengthReceived)
+				{
+					printf("+WARNING+ | Data transfer aborted mid-stream. Expected Length = [%d], Actual Length = [%d]\n",
+						CXN_TRANSFER_DATA_LENGTH, iTotalLengthReceived);
+				}
+
+				printf("*INFO* | Received following data string from remote device:\n%s\n", szDataBuffer);
+
+				// Close the connection
+				if (closesocket(LocalSocket) == SOCKET_ERROR)
+				{
+					printf("=CRITICAL= | closesocket() call failed w/socket = [0x%X]. Error=[%d]\n", LocalSocket, WSAGetLastError());
+					ulRetCode = 1;
+				}
+				else
+				{
+					// Make the connection invalid regardless
+					LocalSocket = INVALID_SOCKET;
+
+					if ((2 <= g_iOutputLevel) | (closesocket(LocalSocket) != SOCKET_ERROR))
+					{
+						printf("*INFO* | closesocket() call succeeded w/socket=[0x%X]\n", LocalSocket);
+					}
+				}
+			}
+		}
+
+		//일단 recv()잘됨 근데 스트림 버퍼에서 읽어오는게 문제인듯?
+		////recv()넣어보자 2
+		//for (int i = 0; i < CXN_TRANSFER_DATA_LENGTH; i++){
+		//	szData[i] = '\0';
+		//}
+		//int iResult = 0;
+		//do {
+		//	//printf("recv() : ");
+		//	iResult = recv(LocalSocket, szData, CXN_TRANSFER_DATA_LENGTH, 0);
+		//	if (iResult > 0){
+		//		//printf(" %d Bytes received from sender", iResult);
+		//		printf(" data = %s\n",szData);
+		//		for (int i = 0; i < iResult; i++){
+		//			szData[i] = '\0';
+		//		}
+		//	}
+		//	else if (iResult == 0)
+		//		printf("Connection closed by peer!\n");
+		//	else
+		//		printf("recv() failed with error code %d\n", WSAGetLastError());
+		//} while (iResult > 0);
 
 
 		// send() call indicates winsock2 to send the given data
