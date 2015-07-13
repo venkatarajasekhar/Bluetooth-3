@@ -36,7 +36,7 @@ int main(){
 	SOCKADDR_BTH socket_Addr_Bth;
 	//memset(&socket_Addr_Bth, 0, sizeof(socket_Addr_Bth)); 이거 안해도되나?
 	socket_Addr_Bth.addressFamily = AF_BTH;
-	socket_Addr_Bth.port = BT_PORT_ANY;
+	socket_Addr_Bth.port = BT_PORT_ANY; //서버일때는 BT_PORT_ANY이고 아닐 땐 0 이나 1 하는거 봐서 COMPORT번호 써주는듯?
 
 
 
