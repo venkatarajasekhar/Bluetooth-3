@@ -27,7 +27,7 @@
 DEFINE_GUID(g_guidServiceClass, 0xb62c4e8d, 0x62cc, 0x404b, 0xbb, 0xbf, 0xbf, 0x3e, 0x3b, 0xbb, 0x13, 0x74);
 
 #define CXN_BDADDR_STR_LEN                17   // 6 two-digit hex values plus 5 colons
-#define CXN_TRANSFER_DATA_LENGTH          128  // length of the data to be transferred
+#define CXN_TRANSFER_DATA_LENGTH          12  // length of the data to be transferred
 #define CXN_MAX_INQUIRY_RETRY             3
 #define CXN_DELAY_NEXT_INQUIRY            15
 
@@ -421,9 +421,15 @@ ULONG RunClientMode(ULONGLONG ululRemoteAddr, int iMaxCxnCycles)
 				default: // most cases when data is being read
 					pszDataBufferIndex += iLengthReceived;
 					iTotalLengthReceived += iLengthReceived;
+					if (iTotalLengthReceived >= CXN_TRANSFER_DATA_LENGTH){
+						iTotalLengthReceived = 0;
+
+						pszDataBufferIndex = szDataBuffer;
+						printf("%s", szDataBuffer);
+					}
 					if ((2 <= g_iOutputLevel) | (iLengthReceived != SOCKET_ERROR))
 					{
-						printf("*INFO* | Receiving data of length = [%d]. Current Total = [%d]\n", iLengthReceived, iTotalLengthReceived);
+						//printf("*INFO* | Receiving data of length = [%d]. Current Total = [%d]\n", iLengthReceived, iTotalLengthReceived);
 					}
 					break;
 				}
@@ -437,7 +443,7 @@ ULONG RunClientMode(ULONGLONG ululRemoteAddr, int iMaxCxnCycles)
 						CXN_TRANSFER_DATA_LENGTH, iTotalLengthReceived);
 				}
 
-				printf("*INFO* | Received following data string from remote device:\n%s\n", szDataBuffer);
+				printf("*INFO1* | Received following data string from remote device:\n%s\n", szDataBuffer);
 
 				// Close the connection
 				if (closesocket(LocalSocket) == SOCKET_ERROR)
@@ -452,7 +458,7 @@ ULONG RunClientMode(ULONGLONG ululRemoteAddr, int iMaxCxnCycles)
 
 					if ((2 <= g_iOutputLevel) | (closesocket(LocalSocket) != SOCKET_ERROR))
 					{
-						printf("*INFO* | closesocket() call succeeded w/socket=[0x%X]\n", LocalSocket);
+						printf("*INFO2* | closesocket() call succeeded w/socket=[0x%X]\n", LocalSocket);
 					}
 				}
 			}
@@ -483,7 +489,7 @@ ULONG RunClientMode(ULONGLONG ululRemoteAddr, int iMaxCxnCycles)
 
 		// send() call indicates winsock2 to send the given data
 		// of a specified length over a given connection.
-		printf("*INFO* | Sending the following data string:\n\t%s\n", szData);
+		printf("*INFO3* | Sending the following data string:\n\t%s\n", szData);
 		if (send(LocalSocket, szData, CXN_TRANSFER_DATA_LENGTH, 0) == SOCKET_ERROR)
 		{
 			printf("=CRITICAL= | send() call failed w/socket = [0x%X], szData = [%p], dataLen = [%d]. WSAGetLastError=[%d]\n",
@@ -494,7 +500,7 @@ ULONG RunClientMode(ULONGLONG ululRemoteAddr, int iMaxCxnCycles)
 
 		if (2 <= g_iOutputLevel)
 		{
-			printf("*INFO* | send() call succeeded\n");
+			printf("*INFO4* | send() call succeeded\n");
 		}
 
 		// Close the socket
@@ -509,7 +515,7 @@ ULONG RunClientMode(ULONGLONG ululRemoteAddr, int iMaxCxnCycles)
 
 		if (2 <= g_iOutputLevel)
 		{
-			printf("*INFO* | closesocket() call succeeded!");
+			printf("*INFO5* | closesocket() call succeeded!");
 		}
 	}
 
@@ -715,7 +721,7 @@ ULONG RunServerMode(int iMaxCxnCycles)
 				iTotalLengthReceived += iLengthReceived;
 				if ((2 <= g_iOutputLevel) | (iLengthReceived != SOCKET_ERROR))
 				{
-					printf("*INFO* | Receiving data of length = [%d]. Current Total = [%d]\n", iLengthReceived, iTotalLengthReceived);
+					//printf("*INFO* | Receiving data of length = [%d]. Current Total = [%d]\n", iLengthReceived, iTotalLengthReceived);
 				}
 				break;
 			}
